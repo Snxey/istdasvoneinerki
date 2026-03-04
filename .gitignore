@@ -1,0 +1,9 @@
+# Private Zugangsdaten
+.env
+
+# Installierte Pakete (sehr groß, nicht hochladen)
+node_modules/
+
+# Build-Dateien (Vercel erstellt diese selbst)
+dist/
+.vercel
