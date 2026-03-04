@@ -90,7 +90,7 @@ export default function App() {
     runScan(f);
   }, []);
 
-  const runScan = async (f) => {
+const runScan = async (f) => {
     setScanStep(0);
     setScanProgress(0);
 
@@ -102,25 +102,46 @@ export default function App() {
 
     try {
       const arrayBuffer = await f.arrayBuffer();
-      // Wir rufen unsere eigene API-Route auf
       const res = await fetch("/api/check", {
         method: "POST",
         body: arrayBuffer,
       });
 
-      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      // Zuerst prüfen, ob es überhaupt JSON ist
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Server schickte HTML statt JSON. Wahrscheinlich 404 Pfad-Fehler.");
+        throw new Error("API-Pfad nicht gefunden");
+      }
+
       const data = await res.json();
 
-      const aiEntry = data.find((d) => d.label?.toLowerCase() === "artificial" || d.label?.toLowerCase() === "ai");
-      const humanEntry = data.find((d) => d.label?.toLowerCase() === "human" || d.label?.toLowerCase() === "real");
+      // Check: Schläft das Modell noch?
+      if (data.error && data.error.includes("loading")) {
+        alert("KI-Modell startet gerade... Bitte in 20 Sek. nochmal scannen!");
+        setPhase("idle");
+        return;
+      }
 
-      const aiScore = aiEntry ? Math.round(aiEntry.score * 100) : 50;
-      const humanScore = humanEntry ? Math.round(humanEntry.score * 100) : 100 - aiScore;
+      if (!res.ok) throw new Error(data.error || `API Error: ${res.status}`);
 
-      setResult({ aiScore, humanScore, isAI: aiScore > 50, raw: data });
+      // Hugging Face liefert ein Array: [{label: "...", score: ...}, ...]
+      if (Array.isArray(data)) {
+        const aiEntry = data.find((d) => d.label?.toLowerCase() === "artificial" || d.label?.toLowerCase() === "ai");
+        const humanEntry = data.find((d) => d.label?.toLowerCase() === "human" || d.label?.toLowerCase() === "real");
+
+        const aiScore = aiEntry ? Math.round(aiEntry.score * 100) : 50;
+        const humanScore = humanEntry ? Math.round(humanEntry.score * 100) : 100 - aiScore;
+
+        setResult({ aiScore, humanScore, isAI: aiScore > 50, raw: data });
+      } else {
+        throw new Error("Ungültiges Datenformat von API");
+      }
+
     } catch (err) {
-      console.error("Scan Error:", err);
-      // Nur wenn die API wirklich scheitert, zeigen wir den Demo-Modus
+      console.error("Detaillierter Scan Fehler:", err);
+      // Demo Fallback
       const demoScore = Math.floor(Math.random() * 100);
       setResult({
         aiScore: demoScore,
