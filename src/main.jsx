@@ -127,14 +127,10 @@ export default function App() {
     // Call API
     try {
       const arrayBuffer = await f.arrayBuffer();
-      const res = await fetch(HF_MODEL_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${HF_API_KEY}`,
-          "Content-Type": f.type,
-        },
-        body: arrayBuffer,
-      });
+      const res = await fetch("/api/check", {
+  method: "POST",
+  body: arrayBuffer,
+});
 
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
       const data = await res.json();
