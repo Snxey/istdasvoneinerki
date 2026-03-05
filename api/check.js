@@ -1,14 +1,8 @@
 export default async function handler(req, res) {
-  // CORS & Method Check
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Nur POST erlaubt' });
 
+  const token = process.env.HF_TOKEN;
   try {
-    const token = process.env.HF_TOKEN;
-    if (!token) throw new Error("HF_TOKEN fehlt in Vercel");
-
-    // Wir senden den Request direkt weiter
     const response = await fetch(
       "https://api-inference.huggingface.co/models/umm-maybe/AI-image-detector",
       {
@@ -21,17 +15,16 @@ export default async function handler(req, res) {
       }
     );
 
-    // WICHTIG: Prüfen ob die Antwort von HF wirklich JSON ist
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      const data = await response.json();
+    const text = await response.text(); // Wir lesen erst den Text
+    
+    try {
+      const data = JSON.parse(text); // Versuchen JSON zu machen
       return res.status(response.status).json(data);
-    } else {
-      const errorText = await response.text();
-      return res.status(500).json({ error: "KI-Modell liefert kein JSON", details: errorText });
+    } catch (e) {
+      // Wenn es kein JSON ist, schicken wir den Text als Fehlermeldung
+      return res.status(500).json({ error: "Hugging Face antwortet nicht mit JSON", details: text });
     }
   } catch (error) {
-    // Dieser Block verhindert, dass eine HTML-Seite gesendet wird
-    return res.status(500).json({ error: "Server-Fehler", message: error.message });
+    return res.status(500).json({ error: "Serverfehler", message: error.message });
   }
 }
