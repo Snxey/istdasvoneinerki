@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "blackjack-trainer"
+version = "0.1.0"
+description = "Real-time Blackjack basic-strategy trainer with screen-capture overlay"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "mss>=9.0.1",
+    "opencv-python>=4.8.0",
+    "numpy>=1.26.0",
+    "Pillow>=10.0.0",
+    "PySide6>=6.6.0",
+    "pynput>=1.7.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+ocr = [
+    "pytesseract>=0.3.10",
+]
+
+[project.scripts]
+blackjack-trainer = "blackjack_trainer.app:main"
+capture-templates = "scripts.capture_templates:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/blackjack_trainer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["src/blackjack_trainer"]
+omit = ["tests/*"]
