@@ -84,6 +84,10 @@ class DetectorConfig:
             [0.52, 0.12, 0.09, 0.18],
         ]
     )
+    # Badge reader (Stake-style hand-total badges).
+    use_badge_reader: bool = False
+    dealer_badge_region: Optional[list[float]] = None  # [x,y,w,h] fractions
+    player_badge_region: Optional[list[float]] = None
 
     @classmethod
     def from_dict(cls, d: dict) -> "DetectorConfig":
@@ -98,6 +102,9 @@ class DetectorConfig:
             dealer_card_regions=d.get(
                 "dealer_card_regions", [[0.41, 0.12, 0.09, 0.18]]
             ),
+            use_badge_reader=d.get("use_badge_reader", False),
+            dealer_badge_region=d.get("dealer_badge_region"),
+            player_badge_region=d.get("player_badge_region"),
         )
 
     def to_dict(self) -> dict:
@@ -107,6 +114,9 @@ class DetectorConfig:
             "template_scale_range": self.template_scale_range,
             "player_card_regions": self.player_card_regions,
             "dealer_card_regions": self.dealer_card_regions,
+            "use_badge_reader": self.use_badge_reader,
+            "dealer_badge_region": self.dealer_badge_region,
+            "player_badge_region": self.player_badge_region,
         }
 
 

@@ -1,0 +1,63 @@
+{
+  "_comment": "Stake.com Blackjack — pre-calibrated region fractions.",
+  "_comment2": "Select the DARK GAME AREA (right side) as your capture region, not the full browser window.",
+  "_comment3": "Use --debug to save crops to /tmp/bj_debug/ and fine-tune the fractions below.",
+
+  "region": {
+    "_comment": "Update x/y/width/height after running --select-region to match your screen.",
+    "x": 540,
+    "y": 0,
+    "width": 900,
+    "height": 685
+  },
+
+  "capture": {
+    "fps": 5,
+    "debug": false
+  },
+
+  "detector": {
+    "template_dir": "assets/templates/stake",
+    "_comment_templates": "Capture templates from Stake cards with: python scripts/capture_templates.py --output assets/templates/stake",
+
+    "confidence_threshold": 0.68,
+    "template_scale_range": [0.85, 1.15],
+
+    "_comment_regions": "Fractions [x, y, w, h] relative to captured region. These target the rank-pip corner of each card.",
+
+    "player_card_regions": [
+      [0.40, 0.66, 0.06, 0.08],
+      [0.46, 0.66, 0.06, 0.08],
+      [0.52, 0.66, 0.06, 0.08],
+      [0.58, 0.66, 0.06, 0.08],
+      [0.64, 0.66, 0.06, 0.08]
+    ],
+
+    "dealer_card_regions": [
+      [0.40, 0.12, 0.06, 0.08]
+    ],
+
+    "use_badge_reader": true,
+    "dealer_badge_region": [0.51, 0.07, 0.07, 0.07],
+    "player_badge_region": [0.51, 0.60, 0.07, 0.07]
+  },
+
+  "rules": {
+    "_comment": "Stake Blackjack rules (verify in-game before relying on this)",
+    "num_decks": 6,
+    "dealer_hits_soft17": false,
+    "double_after_split": true,
+    "surrender_allowed": false
+  },
+
+  "overlay": {
+    "x": 30,
+    "y": 30,
+    "opacity": 0.92
+  },
+
+  "hotkeys": {
+    "pause_resume": "F8",
+    "debug_toggle": "F9"
+  }
+}
